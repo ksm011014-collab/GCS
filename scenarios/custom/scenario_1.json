@@ -1,0 +1,98 @@
+{
+  "key": "scenario_1",
+  "name": "비행 계획 1",
+  "home": {
+    "lat": 36.17169469764609,
+    "lon": 128.46517715736883,
+    "alt_m": 0.0
+  },
+  "target_climb_speed_mps": 2.4,
+  "target_descent_speed_mps": 1.8,
+  "vertical_accel_limit_mps2": 1.0,
+  "waypoints": [
+    {
+      "lat": 36.161409,
+      "lon": 128.46307,
+      "alt_m": 150.0,
+      "target_speed_mps": 8.0,
+      "hold_seconds": 1.0
+    },
+    {
+      "lat": 36.166717,
+      "lon": 128.467156,
+      "alt_m": 150.0,
+      "target_speed_mps": 8.0,
+      "hold_seconds": 0.0
+    },
+    {
+      "lat": 36.169143,
+      "lon": 128.466457,
+      "alt_m": 150.0,
+      "target_speed_mps": 10.0,
+      "hold_seconds": 0.0
+    },
+    {
+      "lat": 36.166784,
+      "lon": 128.466274,
+      "alt_m": 150.0,
+      "target_speed_mps": 12.0,
+      "hold_seconds": 0.5
+    },
+    {
+      "lat": 36.169143,
+      "lon": 128.465475,
+      "alt_m": 150.0,
+      "target_speed_mps": 13.5,
+      "hold_seconds": 0.0
+    },
+    {
+      "lat": 36.166876,
+      "lon": 128.465567,
+      "alt_m": 150.0,
+      "target_speed_mps": 10.0,
+      "hold_seconds": 0.0
+    },
+    {
+      "lat": 36.170433,
+      "lon": 128.465133,
+      "alt_m": 150.0,
+      "target_speed_mps": 10.0,
+      "hold_seconds": 1.0
+    },
+    {
+      "lat": 36.168498,
+      "lon": 128.462508,
+      "alt_m": 150.0,
+      "target_speed_mps": 10.0,
+      "hold_seconds": 0.0
+    },
+    {
+      "lat": 36.166139,
+      "lon": 128.462827,
+      "alt_m": 150.0,
+      "target_speed_mps": 12.0,
+      "hold_seconds": 0.0
+    },
+    {
+      "lat": 36.164499,
+      "lon": 128.46438,
+      "alt_m": 150.0,
+      "target_speed_mps": 9.0,
+      "hold_seconds": 0.0
+    },
+    {
+      "lat": 36.16835,
+      "lon": 128.466115,
+      "alt_m": 150.0,
+      "target_speed_mps": 12.0,
+      "hold_seconds": 1.0
+    },
+    {
+      "lat": 36.171704,
+      "lon": 128.465224,
+      "alt_m": 150.0,
+      "target_speed_mps": 15.0,
+      "hold_seconds": 2.0
+    }
+  ]
+}

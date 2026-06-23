@@ -1,0 +1,637 @@
+#map-area {
+      flex: 1;
+      min-width: 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      padding: var(--app-gutter) 0 var(--app-gutter) var(--app-gutter);
+      gap: var(--app-panel-gap);
+      overflow: hidden;
+    }
+
+#map-viewport {
+  /* background 관련 속성 전부 제거 */
+  width: 100%;
+  flex: 1;
+  min-height: clamp(220px, 42dvh, 720px);
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+ 
+  overflow: hidden;
+}
+
+    .media-stage {
+      position: absolute;
+      overflow: hidden;
+      border-radius: 4px;
+      transition: none;
+      backface-visibility: hidden;
+    }
+
+    .media-stage-map {
+      inset: 0;
+      z-index: 1;
+      background: #091018;
+    }
+
+    .media-stage-camera {
+      left: 12px;
+      bottom: 12px;
+      width: min(25vw, 260px);
+      aspect-ratio: 16 / 9;
+      z-index: 640;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: #000000;
+      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.34);
+      cursor: default;
+    }
+
+    body[data-app-mode="simulation"] .media-stage-camera,
+    body[data-app-mode="simulation"] .media-swap-button {
+      display: none;
+    }
+
+    .media-layout.is-camera-primary .media-stage-camera {
+      inset: 0;
+      width: auto;
+      aspect-ratio: auto;
+      border-color: transparent;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    .media-layout.is-camera-primary .media-stage-map {
+      inset: auto auto 12px 12px;
+      width: min(25vw, 260px);
+      height: auto;
+      aspect-ratio: 16 / 9;
+      z-index: 680;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.34);
+      cursor: default;
+      pointer-events: auto;
+      touch-action: auto;
+    }
+
+    .camera-feed {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+      background: #000000;
+      backface-visibility: hidden;
+    }
+
+    .media-stage-camera.has-feed .camera-feed {
+      display: block;
+    }
+
+    .camera-empty-state {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 18px;
+      background: #000000;
+      color: rgba(236, 240, 243, 0.92);
+      text-align: center;
+    }
+
+    .media-stage-camera.has-feed .camera-empty-state {
+      display: none;
+    }
+
+    .camera-empty-icon {
+      display: inline-flex;
+      width: 42px;
+      height: 42px;
+      color: rgba(255, 255, 255, 0.82);
+    }
+
+    .camera-empty-icon svg {
+      width: 42px;
+      height: 42px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .camera-empty-text {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    .media-swap-button {
+      position: absolute;
+      left: 16px;
+      bottom: 16px;
+      z-index: 720;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 34px;
+      padding: 0 12px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+      background: rgba(3, 10, 18, 0.82);
+      color: rgba(245, 248, 250, 0.96);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.25px;
+      cursor: pointer;
+      box-shadow: 0 12px 22px rgba(0, 0, 0, 0.24);
+    }
+
+    .media-swap-button-icon {
+      display: inline-flex;
+      width: 14px;
+      height: 14px;
+    }
+
+    .media-swap-button-icon svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    #map-hud {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      z-index: 700;
+      max-width: calc(100% - 16px);
+      pointer-events: none;
+      transition: none;
+    }
+
+    #map-status {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      z-index: 690;
+      font-size: 10px;
+      color: var(--text-main);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 3px 10px;
+    }
+
+.map-attitude-indicator {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 710;
+  width: 162px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-card);
+  color: var(--text-main);
+  pointer-events: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  transition: none;
+}
+
+.map-attitude-indicator.is-muted {
+  opacity: 1;
+}
+
+.adi-panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.adi-stream-field {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.adi-stream-field-label {
+  color: var(--text-dim);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  line-height: 1;
+}
+
+.adi-stream-select {
+  width: 100%;
+  min-height: 24px;
+  padding: 0 28px 0 8px;
+  border-radius: 3px;
+  font-size: 10px;
+}
+
+.adi-toggle-button {
+  flex: 0 0 auto;
+  min-height: 24px;
+  margin-top: 11px;
+  padding: 0 8px;
+  border: 1px solid var(--border-dim);
+  border-radius: 3px;
+  background: var(--bg-card);
+  color: var(--text-dim);
+  font-family: var(--font);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.adi-toggle-button[hidden] {
+  display: none;
+}
+
+.adi-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.map-attitude-indicator.is-expanded .adi-card-list {
+  max-height: min(360px, 52dvh);
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.adi-card {
+  --adi-horizon-roll: 0deg;
+  --adi-pitch-offset: 0px;
+  --adi-compass-card: 0deg;
+  width: 100%;
+  padding: 5px 6px 7px;
+  border: 1px solid var(--border-dim);
+  border-radius: 3px;
+  background: var(--bg-card);
+  color: var(--text-main);
+  cursor: pointer;
+}
+
+.adi-card.is-selected {
+  border-color: var(--border);
+  background: color-mix(in srgb, var(--bg-active) 70%, var(--bg-card));
+}
+
+.adi-card.is-muted {
+  opacity: 0.92;
+}
+
+.adi-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+  color: var(--text-dim);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.6px;
+}
+
+.adi-card-title {
+  color: var(--text-main);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.adi-card-status {
+  color: var(--text-dim);
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.adi-body {
+  position: relative;
+  display: flex;
+  min-height: 90px;
+  flex-direction: column;
+  align-items: center;
+}
+
+.adi-instrument {
+  position: relative;
+  width: 90px;
+  height: 90px;
+  display: grid;
+  place-items: center;
+}
+
+.adi-compass-card {
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--border-dim);
+  border-radius: 50%;
+  transform: rotate(var(--adi-compass-card));
+}
+
+.adi-compass-mark {
+  position: absolute;
+  color: var(--text-main);
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.adi-compass-north {
+  top: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.adi-compass-east {
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+}
+
+.adi-compass-south {
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.adi-compass-west {
+  top: 50%;
+  left: 6px;
+  transform: translateY(-50%);
+}
+
+.adi-top-pointer {
+  position: absolute;
+  left: 50%;
+  top: -2px;
+  z-index: 4;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 8px solid var(--green);
+  transform: translateX(-50%);
+}
+
+.adi-sphere {
+  position: relative;
+  width: 68px;
+  height: 68px;
+  overflow: hidden;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  background: var(--bg-card);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+.adi-center-guide {
+  position: absolute;
+  left: 50%;
+  top: 7px;
+  bottom: 7px;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateX(-50%);
+  z-index: 3;
+}
+
+.adi-horizon {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 112px;
+  height: 112px;
+  transform: translate(-50%, calc(-50% + var(--adi-pitch-offset))) rotate(var(--adi-horizon-roll));
+}
+
+.adi-sky,
+.adi-ground {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 50%;
+}
+
+.adi-sky {
+  top: 0;
+  background: #4f8b9c;
+}
+
+.adi-ground {
+  bottom: 0;
+  background: #b89b5e;
+}
+
+.adi-pitch-ladder {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 70px;
+  height: 60px;
+  transform: translate(-50%, -50%);
+}
+
+.adi-pitch-line {
+  position: absolute;
+  left: 50%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateX(-50%);
+}
+
+.adi-pitch-line-high,
+.adi-pitch-line-bottom {
+  width: 22px;
+}
+
+.adi-pitch-line-mid,
+.adi-pitch-line-low {
+  width: 30px;
+}
+
+.adi-pitch-line-center {
+  width: 56px;
+  height: 2px;
+  background: #ffffff;
+}
+
+.adi-pitch-line-high {
+  top: 8px;
+}
+
+.adi-pitch-line-mid {
+  top: 18px;
+}
+
+.adi-pitch-line-center {
+  top: 27px;
+}
+
+.adi-pitch-line-low {
+  bottom: 18px;
+}
+
+.adi-pitch-line-bottom {
+  bottom: 8px;
+}
+
+.adi-aircraft {
+  position: absolute;
+  inset: 0;
+}
+
+.adi-aircraft-wing,
+.adi-aircraft-center {
+  position: absolute;
+  top: 50%;
+  background: transparent;
+  box-shadow: none;
+  z-index: 4;
+}
+
+.adi-aircraft-wing {
+  width: 17px;
+  height: 0;
+  border-top: 1.5px solid rgba(0, 0, 0, 0.92);
+  transform: translateY(-50%);
+}
+
+.adi-aircraft-wing-left {
+  left: 8px;
+}
+
+.adi-aircraft-wing-right {
+  right: 8px;
+}
+
+.adi-aircraft-center {
+  left: 50%;
+  width: 0;
+  height: 12px;
+  border-left: 1.5px solid rgba(0, 0, 0, 0.92);
+  transform: translate(-50%, -50%);
+}
+
+.adi-empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 82px;
+  border: 1px dashed var(--border-dim);
+  border-radius: 3px;
+  color: var(--text-dim);
+  font-size: 10px;
+}
+
+@media (max-width: 720px) {
+  .map-attitude-indicator {
+    width: 146px;
+  }
+
+  .adi-toggle-button {
+    min-width: 46px;
+    padding: 0 6px;
+  }
+}
+
+.dss-waypoint-icon {
+  background: transparent;
+  border: 0;
+}
+
+.dss-drone-image-icon {
+  background: transparent;
+  border: 0;
+}
+
+.dss-drone-image-frame {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid var(--border);
+  box-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.14);
+}
+
+.dss-drone-image {
+  display: block;
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  filter:
+      drop-shadow(0 0 8px var(--drone-accent-glow, rgba(0, 229, 255, 0.24)))
+      drop-shadow(0 2px 3px rgba(0, 0, 0, 0.45));
+}
+
+.dss-waypoint-badge {
+  width: var(--waypoint-size);
+  height: var(--waypoint-size);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      background: var(--waypoint-fill);
+      color: #fff;
+      font-size: 9px;
+      font-weight: 700;
+      line-height: 1;
+      box-shadow: 0 0 0 1px rgba(2, 9, 4, 0.25);
+    }
+
+    .dss-editor-icon {
+      background: transparent;
+      border: 0;
+    }
+
+.dss-editor-home-point,
+.dss-editor-waypoint-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--editor-marker-bg);
+  box-shadow: 0 0 0 1px rgba(2, 9, 4, 0.28);
+}
+
+.dss-editor-home-point {
+  width: 16px;
+  height: 16px;
+  background: var(--bg-active);
+}
+
+.dss-editor-waypoint-badge {
+  width: 24px;
+  height: 24px;
+  color: var(--text-main);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+    .dss-editor-waypoint-badge.is-selected {
+      border-color: var(--border);
+      color: var(--text-main);
+    }

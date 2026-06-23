@@ -1,0 +1,49 @@
+{
+  "key": "custom_부산_20260504_121312",
+  "name": "해상 침투",
+  "home": {
+    "lat": 35.10529800474525,
+    "lon": 129.05257347938175,
+    "alt_m": 0.0
+  },
+  "target_climb_speed_mps": 2.4,
+  "target_descent_speed_mps": 1.8,
+  "vertical_accel_limit_mps2": 1.0,
+  "waypoints": [
+    {
+      "lat": 35.107639336309646,
+      "lon": 129.0533062837405,
+      "alt_m": 120.0,
+      "target_speed_mps": 8.0,
+      "hold_seconds": 1.0
+    },
+    {
+      "lat": 35.10925442083805,
+      "lon": 129.05133273636488,
+      "alt_m": 120.0,
+      "target_speed_mps": 8.0,
+      "hold_seconds": 0.0
+    },
+    {
+      "lat": 35.10842913680118,
+      "lon": 129.05444296860207,
+      "alt_m": 120.0,
+      "target_speed_mps": 8.0,
+      "hold_seconds": 0.0
+    },
+    {
+      "lat": 35.10774545489298,
+      "lon": 129.05103154777368,
+      "alt_m": 120.0,
+      "target_speed_mps": 8.0,
+      "hold_seconds": 0.0
+    },
+    {
+      "lat": 35.111202771368575,
+      "lon": 129.04749177981378,
+      "alt_m": 120.0,
+      "target_speed_mps": 8.0,
+      "hold_seconds": 0.0
+    }
+  ]
+}

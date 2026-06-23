@@ -1,0 +1,18 @@
+{
+  "key": "custom_drone_dfd_20260508_115933",
+  "name": "dfd",
+  "category": "사용자 정의 기체",
+  "max_horizontal_speed_mps": 18.0,
+  "max_ascent_speed_mps": 5.0,
+  "max_descent_speed_mps": 4.0,
+  "max_service_ceiling_m": 3000.0,
+  "max_flight_time_min": 25.0,
+  "weight_g": 900.0,
+  "rcs_estimate_m2": 0.03,
+  "rf_signature": null,
+  "rf_band": null,
+  "acoustic_signature_hz": null,
+  "thermal_signature_level": null,
+  "payload_capacity_g": null,
+  "sensor_notes": null
+}

@@ -1,0 +1,174 @@
+DSS 프로젝트 파일 설명
+
+루트 항목
+
+.venv
+Python 가상환경 폴더
+FastAPI, Uvicorn, NumPy, pymavlink 등 실행 패키지
+
+backend
+백엔드 코드 폴더
+
+
+frontend
+프론트엔드 코드 폴더
+
+logs
+비행 데이터 및 로그 저장 위치
+
+scenarios
+사용자 저장 비행 계획 JSON이 들어가는 폴더
+현재는 custom 하위 폴더에 사용자 시나리오들이 있습니다.
+
+tests
+백엔드 기능 검증용 Python 테스트 폴더
+물리, 시나리오, 로그, API, 임무 상태 전환 등을 확인
+
+.gitignore
+Git에 올리지 않을 파일 규칙
+현재는 .venv, __pycache__, Python bytecode, 로그 CSV/DB, 임시 폴더, 검증 스크린샷, MP4, OS 캐시 파일을 무시
+
+AGENTS.md
+이 프로젝트에서 Codex/AI 작업자가 따라야 하는 규칙 문서
+WebSocket 스키마 유지, API 호환성, 수정 범위 제한, Python/JavaScript 규칙 등이 정의되어 있음
+
+README.md
+프로젝트 설명 문서
+목적, 구조, 권장 Python 버전, 초기 실행 방향 등
+
+requirements.txt
+Python 의존성 목록
+새 환경에서 pip install -r requirements.txt 명령으로 필요한 패키지를 설치할 때 사용
+
+
+실행.txt
+
+실행 방법
+
+추가 보완.txt
+
+추가 아이디어, 교수님 피드백 등
+
+
+backend 파일
+
+backend/drone_specs.py
+DJI 기체별 사양 데이터
+최대 수평 속도, 상승/하강 속도, 최대 고도, 비행 시간, 무게, RCS 추정값을 제공
+
+backend/formation.py
+다중 드론 편대 비행에서 첫 웨이포인트 동기화를 담당
+첫 웨이포인트에서 대기 후 동시 출발(군집 시나리오 용)
+
+backend/logger.py
+완료된 시나리오의 텔레메트리 샘플을 CSV로 저장하는 로직
+async API 형태를 유지하지만 내부 파일 쓰기는 단순 CSV 저장입니다.
+
+backend/main.py
+백엔드 핵심 엔트리포인트
+FastAPI 앱, REST API, WebSocket, 시뮬레이션 루프, 임무 상태 전환, 텔레메트리 송신, 진행률 계산, 실기체 MAVLink WebSocket 등 포함
+
+backend/mavlink_bridge.py
+Pixhawk/MAVLink 연결 보조 코드
+UDP/Serial 연결 생성, MAVLink 메시지 필터링, 위치/속도/자세 데이터 추출을 담당
+
+backend/physics.py
+순수 물리 계산 모듈
+RK4 방식으로 드론 상태를 한 스텝 전진시키고, 속도/가속도/위치 텔레메트리를 계산
+
+backend/scenario.py
+비행 시나리오 정의, 저장, 로드, 삭제, 수정 로직
+기본 시나리오와 사용자 저장 JSON 시나리오를 ScenarioDefinition으로 변환
+
+backend/ws_manager.py
+WebSocket 연결 관리 클래스
+연결 등록, 해제, 개별 JSON 송신, 브로드캐스트 기능을 제공
+
+backend/__init__.py
+backend 폴더를 Python 패키지로 인식시키는 파일
+backend.main처럼 import가능하게
+
+
+frontend 주요 파일
+
+frontend/index.html
+웹 UI
+
+
+frontend/css/01_main.css
+CSS 묶음
+
+frontend/css/basic.css
+기본 색상, 전역 스타일, 테마 관련 기본값을 담당
+
+frontend/css/headBody.css
+헤더와 전체 레이아웃 뼈대 스타일
+
+frontend/css/map.css
+Leaflet 지도, 드론 마커, 경로, ADI 자세 표시기 등 지도 관련 스타일
+
+frontend/css/components.css
+공통 버튼, 셀렉트, 입력창, 카드성 UI 요소 스타일
+
+frontend/css/right.css
+오른쪽 패널, 탭, 시나리오 빌더, 실기체/비행 패널 스타일
+
+frontend/css/bottom.css
+하단 진행률 바와 시작/정지/초기화/저장 버튼 영역 스타일
+
+frontend/css/mobile.css
+모바일 화면 대응 스타일
+
+frontend/js/main.js
+프론트엔드 전체 조정자
+드론/시나리오 선택, 시뮬레이션 시작/정지/재개, 실기체 연결, 패널 전환, 저장, 각 모듈 초기화를 담당
+
+frontend/js/socket.js
+WebSocket 진입점
+
+frontend/js/map.js
+Leaflet 지도 전담 모듈
+지도 초기화, 드론 마커, 실제/계획 경로, 홈/웨이포인트 표시, 시나리오 편집용 지도 동작, ADI 표시를 관리
+
+frontend/js/telemetry.js
+텔레메트리 카드 UI를 관리
+속도, 고도, 위치, 가속도 등 수신 데이터를 화면에 반영
+
+frontend/js/log.js
+화면 로그 패널을 관리
+WebSocket 로그 메시지나 UI 액션 로그를 append-only 방식으로 표시
+
+frontend/js/flight_log.js
+브라우저 측 비행 데이터 기록/다운로드 기능
+텔레메트리 이벤트를 모아 CSV로 저장할 때 사용
+
+frontend/js/scenario_builder.js
+사용자 비행 계획 생성/수정/삭제 UI 로직
+지도 편집 상태와 입력 폼을 동기화하고 백엔드 custom scenario API를 호출
+
+frontend/assets/drone-icons
+지도 위 드론 마커에 쓰이는 기체별 PNG 아이콘
+
+
+
+scenarios 파일
+
+비행 계획 저장
+
+
+tests 파일
+
+tests/test_physics.py
+RK4 물리 계산, 속도 제한, 고도 제한, 텔레메트리 렌더링 검증 테스트
+
+tests/test_scenario.py
+시나리오 정의, 거리/시간 추정, 사용자 시나리오 저장/로드/삭제, 편대 오프셋 검증 테스트
+
+tests/test_main.py
+FastAPI API, 임무 상태 전환, 진행률 계산, 자동/수동 비행 모드, WebSocket 관련 핵심 로직 테스트
+
+tests/test_logger.py
+완료 시나리오 CSV 로그 파일명/저장 형식 검증 테스트
+
+tests/test_formation.py
+편대 동기화 매니저가 여러 드론의 첫 웨이포인트 대기를 올바르게 처리하는지 검증

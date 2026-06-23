@@ -1,0 +1,35 @@
+{
+  "key": "custom_비행_계획_3_20260414_221748",
+  "name": "비행 계획 3",
+  "home": {
+    "lat": 36.172663755352076,
+    "lon": 128.47300453276213,
+    "alt_m": 0.0
+  },
+  "target_climb_speed_mps": 3.0,
+  "target_descent_speed_mps": 1.6,
+  "vertical_accel_limit_mps2": 1.0,
+  "waypoints": [
+    {
+      "lat": 36.17098323627647,
+      "lon": 128.47505587296857,
+      "alt_m": 120.0,
+      "target_speed_mps": 8.0,
+      "hold_seconds": 1.0
+    },
+    {
+      "lat": 36.16945810766825,
+      "lon": 128.47351146924314,
+      "alt_m": 120.0,
+      "target_speed_mps": 8.0,
+      "hold_seconds": 0.0
+    },
+    {
+      "lat": 36.17131366448369,
+      "lon": 128.47077375786247,
+      "alt_m": 150.0,
+      "target_speed_mps": 10.0,
+      "hold_seconds": 1.0
+    }
+  ]
+}

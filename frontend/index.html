@@ -1,0 +1,697 @@
+﻿<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>K-DP</title>
+  <link rel="stylesheet" href="./vendor/leaflet/leaflet.css" />
+  <link rel="stylesheet" href="./css/01_main.css?v=98" />
+</head>
+
+<body data-app-mode="simulation">
+
+  <header id="header">
+    <div class="brand">
+      <span class="logo">◆</span>
+      <div class="brand-copy">
+        <span id="header-brand-title" class="title">K-DP</span>
+        <span id="header-brand-subtitle" class="sub">DECISION SUPPORT SYSTEM</span>
+      </div>
+      <div class="app-mode-switch" role="tablist" aria-label="프로그램 전환">
+        <button
+          type="button"
+          class="app-mode-switch-button is-active"
+          data-app-mode-switch="simulation"
+          aria-pressed="true"
+        >
+          시뮬레이션
+        </button>
+        <button
+          type="button"
+          class="app-mode-switch-button"
+          data-app-mode-switch="ground-control"
+          aria-pressed="false"
+        >
+          지상관제
+        </button>
+      </div>
+    </div>
+    <div class="status">
+      <div class="header-indicators" aria-label="시스템 상태">
+        <div id="header-link-indicator" class="header-indicator" data-state="offline">
+          <span class="header-indicator-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <circle cx="12" cy="18" r="1.7" />
+              <path d="M8.4 14.4a5 5 0 0 1 7.2 0" />
+              <path d="M5.6 11.1a9 9 0 0 1 12.8 0" />
+              <path d="M2.8 7.8a13 13 0 0 1 18.4 0" />
+            </svg>
+          </span>
+          <span class="header-indicator-copy">
+            <span class="header-indicator-label">LINK</span>
+            <span id="header-link-value" class="header-indicator-value">IDLE</span>
+          </span>
+        </div>
+        <div id="header-arm-indicator" class="header-indicator" data-state="idle">
+          <span class="header-indicator-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="M12 4v16" />
+              <path d="M8 8l4-4 4 4" />
+              <path d="M8 16l4 4 4-4" />
+            </svg>
+          </span>
+          <span class="header-indicator-copy">
+            <span class="header-indicator-label">ARM</span>
+            <span id="header-arm-value" class="header-indicator-value">--</span>
+          </span>
+        </div>
+        <div id="header-gps-indicator" class="header-indicator" data-state="idle">
+          <span class="header-indicator-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <circle cx="12" cy="12" r="7" />
+              <circle cx="12" cy="12" r="1.8" />
+              <path d="M12 3v2.5" />
+              <path d="M12 18.5V21" />
+              <path d="M3 12h2.5" />
+              <path d="M18.5 12H21" />
+            </svg>
+          </span>
+          <span class="header-indicator-copy">
+            <span class="header-indicator-label">GPS</span>
+            <span id="header-gps-value" class="header-indicator-value">--</span>
+          </span>
+        </div>
+        <div id="header-battery-indicator" class="header-indicator" data-state="idle">
+          <span class="header-indicator-icon header-battery-icon" aria-hidden="true">
+            <span class="header-battery-shell">
+              <span id="header-battery-fill" class="header-battery-fill"></span>
+            </span>
+            <span class="header-battery-cap"></span>
+          </span>
+          <span class="header-indicator-copy">
+            <span class="header-indicator-label">BAT</span>
+            <span id="header-battery-value" class="header-indicator-value">--</span>
+          </span>
+        </div>
+        <div id="header-mode-indicator" class="header-indicator" data-state="idle">
+          <span class="header-indicator-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="M12 3l6 4v7c0 3.8-2.6 6.5-6 7-3.4-.5-6-3.2-6-7V7z" />
+              <path d="M12 7v5" />
+              <path d="M9.4 10.4L12 12l2.6-1.6" />
+            </svg>
+          </span>
+          <span class="header-indicator-copy">
+            <span class="header-indicator-label">MODE</span>
+            <span id="header-mode-value" class="header-indicator-value">--</span>
+          </span>
+        </div>
+      </div>
+      <span id="stream-status" hidden>SIMULATION</span>
+      <label class="theme-control" for="theme-select">
+        THEME:
+        <select id="theme-select" class="theme-select" aria-label="테마 선택">
+          <option value="dark">Dark</option>
+          <option value="light" selected>Light</option>
+        </select>
+      </label>
+      <button id="mobile-panel-button" class="mobile-panel-button" type="button" aria-label="모바일 메뉴 열기" aria-expanded="false" aria-controls="right-panel">메뉴</button>
+    </div>
+  </header>
+
+  <div id="body">
+    <div id="left-stage">
+      <div id="map-area">
+
+      <div id="map-viewport" class="media-layout is-map-primary">
+        <div id="map-stage" class="media-stage media-stage-map">
+          <div id="leaflet-map" style="position:absolute; inset:0; z-index:0;"></div>
+          <div id="map-status" hidden>● READY</div>
+        </div>
+
+        <div id="camera-stage" class="media-stage media-stage-camera" aria-label="카메라 화면">
+          <video id="camera-feed" class="camera-feed" autoplay playsinline muted></video>
+          <div id="camera-empty-state" class="camera-empty-state">
+            <span class="camera-empty-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false">
+                <rect x="4" y="7" width="11" height="10" rx="2" />
+                <path d="M15 10l5-3v10l-5-3" />
+                <path d="M6 6l12 12" />
+              </svg>
+            </span>
+            <span id="camera-empty-text" class="camera-empty-text">기체 연결 안 됨</span>
+          </div>
+        </div>
+
+        <button id="media-swap-button" class="media-swap-button" type="button" aria-label="카메라 확대">
+          <span class="media-swap-button-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="M8 4H4v4" />
+              <path d="M16 4h4v4" />
+              <path d="M20 16v4h-4" />
+              <path d="M4 16v4h4" />
+            </svg>
+          </span>
+          <span id="media-swap-button-label" class="media-swap-button-label">카메라 확대</span>
+        </button>
+
+        <div id="map-hud">
+          <button id="map-menu-button" class="map-menu-button" type="button" aria-label="네비게이션 메뉴 열기" aria-expanded="false" aria-controls="right-tabs">
+            <span class="map-menu-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false">
+                <path d="M5 7h14" />
+                <path d="M5 12h14" />
+                <path d="M5 17h14" />
+              </svg>
+            </span>
+          </button>
+          <div id="right-tabs" class="right-tabs map-navigation" aria-hidden="true">
+            <button type="button" class="right-tab is-active" data-panel-tab="simulation" data-app-mode="simulation" aria-label="시뮬">
+              <span class="right-tab-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path d="M5 5h14v10H5z" />
+                  <path d="M10 19h4" />
+                  <path d="M8 21h8" />
+                </svg>
+              </span>
+              <span class="right-tab-label">시뮬</span>
+            </button>
+            <button type="button" class="right-tab" data-panel-tab="builder" data-app-mode="simulation" aria-label="계획">
+              <span class="right-tab-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path d="M6 5h12v14H6z" />
+                  <path d="M9 9h6" />
+                  <path d="M9 13h6" />
+                  <path d="M9 17h4" />
+                </svg>
+              </span>
+              <span class="right-tab-label">계획</span>
+            </button>
+            <button type="button" class="right-tab" data-panel-tab="drone-builder" data-app-mode="simulation" aria-label="기체">
+              <span class="right-tab-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <circle cx="7" cy="7" r="2.2" />
+                  <circle cx="17" cy="7" r="2.2" />
+                  <circle cx="7" cy="17" r="2.2" />
+                  <circle cx="17" cy="17" r="2.2" />
+                  <path d="M8.8 8.8L10.6 10.6" />
+                  <path d="M15.2 8.8L13.4 10.6" />
+                  <path d="M8.8 15.2L10.6 13.4" />
+                  <path d="M15.2 15.2L13.4 13.4" />
+                  <rect x="10.1" y="10.1" width="3.8" height="3.8" rx="0.8" />
+                  <path d="M11.1 13.9v1.3" />
+                  <path d="M12.9 13.9v1.3" />
+                </svg>
+              </span>
+              <span class="right-tab-label right-tab-label-multiline">기체</span>
+            </button>
+            <button type="button" class="right-tab" data-panel-tab="replay" data-app-mode="simulation" aria-label="리플레이">
+              <span class="right-tab-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path d="M6 4h9l3 3v13H6z" />
+                  <path d="M15 4v3h3" />
+                  <path d="M10 10l5 3-5 3z" />
+                </svg>
+              </span>
+              <span class="right-tab-label">리플레이</span>
+            </button>
+            <button type="button" class="right-tab" data-panel-tab="live" data-app-mode="ground-control" aria-label="연결">
+              <span class="right-tab-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M7 7a7 7 0 0 1 10 0" />
+                  <path d="M7 17a7 7 0 0 0 10 0" />
+                  <path d="M4 4a11 11 0 0 1 16 0" />
+                </svg>
+              </span>
+              <span class="right-tab-label">연결</span>
+            </button>
+            <button type="button" class="right-tab" data-panel-tab="flight" data-app-mode="ground-control" aria-label="비행">
+              <span class="right-tab-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path d="M12 3l7 17-7-4-7 4z" />
+                  <path d="M12 3v13" />
+                </svg>
+              </span>
+              <span class="right-tab-label">비행</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="map-attitude-indicator" class="map-attitude-indicator is-muted is-collapsed" role="group" aria-label="자세 방향 표시기 대기 중">
+          <div class="adi-panel-head">
+            <label class="adi-stream-field" for="adi-stream-select">
+              <span class="adi-stream-field-label">ADI 기체</span>
+              <select id="adi-stream-select" class="panel-select adi-stream-select" aria-label="ADI 기체 선택"></select>
+            </label>
+            <button id="adi-toggle-button" class="adi-toggle-button" type="button" aria-expanded="false">펼치기</button>
+          </div>
+          <div id="adi-card-list" class="adi-card-list"></div>
+        </div>
+      </div>
+
+        <div id="telemetry-section">
+          <div id="telemetry-row"></div>
+        </div>
+      </div>
+
+      <footer id="bottom-bar">
+        <div
+          id="progress-wrap"
+          role="slider"
+          aria-label="재생 진행도"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="0"
+          aria-valuetext="0%"
+          aria-disabled="true"
+          tabindex="-1"
+        >
+          <div id="progress-fill"></div>
+          <div id="progress-handle" aria-hidden="true"></div>
+        </div>
+        <span id="progress-pct">0%</span>
+
+        <button id="start-button" class="action-btn btn-cyan">▶ 시작</button>
+        <button id="pause-button" class="action-btn btn-green">❚❚ 정지</button>
+        <button id="reset-button" class="action-btn btn-yellow">↺ 초기화</button>
+        <button id="save-button" class="action-btn btn-purple">⊞ 저장</button>
+      </footer>
+    </div>
+
+    <div id="right-panel">
+      <div id="simulation-panel" class="right-tab-panel is-active">
+        <div class="slot-config">
+          <div class="section-label">▶ 드론 1</div>
+          <select id="drone-1-select" class="panel-select">
+            <option>선택 안함</option>
+            <option>Inspire 2</option>
+            <option>Inspire 3</option>
+            <option>mavic 3 pro</option>
+            <option>mavic 3 air</option>
+            <option>phantom 4 rtk</option>
+          </select>
+          <label class="slot-subfield">
+            <span>비행 계획</span>
+            <select id="scenario-1-select" class="panel-select"></select>
+          </label>
+        </div>
+
+        <div class="slot-config">
+          <div class="section-label">▶ 드론 2</div>
+          <select id="drone-2-select" class="panel-select">
+            <option>선택 안함</option>
+            <option>Inspire 2</option>
+            <option>Inspire 3</option>
+            <option>mavic 3 pro</option>
+            <option>mavic 3 air</option>
+            <option>phantom 4 rtk</option>
+          </select>
+          <label class="slot-subfield">
+            <span>비행 계획</span>
+            <select id="scenario-2-select" class="panel-select"></select>
+          </label>
+        </div>
+
+        <div class="slot-config">
+          <div class="section-label">▶ 드론 3</div>
+          <select id="drone-3-select" class="panel-select">
+            <option>선택 안함</option>
+            <option>Inspire 2</option>
+            <option>Inspire 3</option>
+            <option>mavic 3 pro</option>
+            <option>mavic 3 air</option>
+            <option>phantom 4 rtk</option>
+          </select>
+          <label class="slot-subfield">
+            <span>비행 계획</span>
+            <select id="scenario-3-select" class="panel-select"></select>
+          </label>
+        </div>
+
+        <div class="slot-config">
+          <div class="section-label">▶ 시뮬레이션 반복</div>
+          <label class="slot-subfield">
+            <span>반복 횟수</span>
+            <input
+              id="simulation-repeat-count-input"
+              class="panel-input"
+              type="number"
+              min="1"
+              max="999"
+              step="1"
+              value="1"
+              inputmode="numeric"
+            />
+          </label>
+          <div id="simulation-repeat-status" class="builder-empty">준비됨 · 1 / 1회차</div>
+        </div>
+
+        <div id="log-section">
+          <div class="log-header">
+            <div class="section-label">▶ 비행 로그</div>
+            <div id="log-stream-selector" class="log-stream-selector">
+              <button type="button" class="log-stream-button is-active" data-log-stream-id="drone-1-select">기체 1</button>
+              <button type="button" class="log-stream-button" data-log-stream-id="drone-2-select">기체 2</button>
+              <button type="button" class="log-stream-button" data-log-stream-id="drone-3-select">기체 3</button>
+              <button type="button" class="log-stream-button" data-log-stream-id="live-vehicle">연결된 기체</button>
+            </div>
+          </div>
+          <div id="log-status">기체 1 로그</div>
+          <div id="log-list">
+          </div>
+        </div>
+      </div>
+
+        <div id="live-panel" class="right-tab-panel">
+          <div class="builder-section">
+            <div class="section-label">▶ Pixhawk 브리지</div>
+            <div id="live-connection-status" class="live-status-card">실기체 모드를 선택하면 Pixhawk 브리지 연결 UI가 활성화됩니다.</div>
+            <div class="builder-grid builder-grid-2">
+              <label class="builder-field">
+                <span>입력 방식</span>
+                <select id="live-link-type-select" class="panel-select">
+                  <option value="serial">Serial (MAVLink)</option>
+                  <option value="udp">UDP (MAVLink)</option>
+                </select>
+              </label>
+              <label class="builder-field">
+                <span>Baudrate</span>
+                <select id="live-baudrate-select" class="panel-select">
+                  <option value="57600">57600</option>
+                  <option value="115200" selected>115200</option>
+                  <option value="230400">230400</option>
+                </select>
+              </label>
+              <label class="builder-field builder-field-span-2">
+                <span>포트 / 엔드포인트</span>
+                <input id="live-endpoint-input" class="panel-input" type="text" list="live-serial-port-options" placeholder="COM3 / udp:127.0.0.1:14550" />
+                <datalist id="live-serial-port-options"></datalist>
+              </label>
+              <label class="builder-field">
+                <span>System ID</span>
+                <input id="live-system-id-input" class="panel-input" type="number" min="0" step="1" value="0" />
+              </label>
+              <label class="builder-field">
+                <span>Component ID</span>
+                <input id="live-component-id-input" class="panel-input" type="number" min="0" step="1" value="0" />
+              </label>
+            </div>
+          </div>
+
+          <div class="builder-section">
+            <div class="section-label">▶ 기체 정보</div>
+            <div class="live-summary">
+              <div class="live-summary-row"><span class="live-summary-key">Autopilot</span><span id="live-autopilot-value" class="live-summary-value">Pixhawk</span></div>
+              <div class="live-summary-row"><span class="live-summary-key">Airframe</span><span id="live-airframe-value" class="live-summary-value">자작 드론</span></div>
+              <div class="live-summary-row"><span class="live-summary-key">Link</span><span id="live-link-value" class="live-summary-value">MAVLink Bridge</span></div>
+              <div class="live-summary-row"><span class="live-summary-key">Target</span><span id="live-target-value" class="live-summary-value">HEARTBEAT 대기</span></div>
+              <div class="live-summary-row"><span class="live-summary-key">Firmware</span><span id="live-firmware-value" class="live-summary-value">대기</span></div>
+              <div class="live-summary-row"><span class="live-summary-key">ARM</span><span id="live-arm-status-value" class="live-summary-value">대기</span></div>
+              <div class="live-summary-row"><span class="live-summary-key">GPS</span><span id="live-gps-status-value" class="live-summary-value">대기</span></div>
+              <div class="live-summary-row"><span class="live-summary-key">Battery</span><span id="live-battery-value" class="live-summary-value">대기</span></div>
+            </div>
+          </div>
+
+          <div class="builder-section">
+            <div class="section-label">▶ 텔레메트리 연결</div>
+            <div class="live-actions">
+              <button id="live-connect-button" type="button" class="action-btn">브리지 연결</button>
+            </div>
+            <div class="builder-empty">Serial 또는 UDP MAVLink 텔레메트리 연결을 지원합니다.</div>
+            <div class="builder-empty">현재는 HEARTBEAT, 모드, 배터리, GPS, 자세, 위치 상태만 수신하며 전체 파라미터 동기화는 아직 지원하지 않습니다.</div>
+          </div>
+        </div>
+
+        <div id="builder-panel" class="right-tab-panel">
+          <div class="builder-section">
+            <div class="section-label">▶ 비행 계획 선택</div>
+            <div class="builder-scenario-toolbar">
+              <select id="builder-scenario-select" class="panel-select"></select>
+              <button id="builder-scenario-delete-button" type="button" class="action-btn builder-scenario-delete-button">삭제</button>
+            </div>
+          </div>
+
+          <div class="builder-section">
+            <div class="section-label">▶ 비행 계획 이름</div>
+            <input id="builder-scenario-name" class="panel-input" type="text" placeholder="비행 계획 추가" />
+          </div>
+
+          <div class="builder-section">
+            <div class="section-label">▶ 기본 비행 설정</div>
+            <div class="builder-grid builder-grid-2">
+              <label class="builder-field">
+                <span>상승 속도</span>
+                <input id="builder-climb-speed" class="panel-input" type="number" min="0.1" step="0.1" value="2.4" />
+              </label>
+              <label class="builder-field">
+                <span>하강 속도</span>
+                <input id="builder-descent-speed" class="panel-input" type="number" min="0.1" step="0.1" value="1.8" />
+              </label>
+            </div>
+          </div>
+
+          <div class="builder-section">
+            <div class="section-label">▶ HOME</div>
+          <div class="builder-actions">
+            <button id="builder-set-home-button" type="button" class="action-btn">HOME 설정</button>
+            <button id="builder-reset-home-button" type="button" class="action-btn">기본 HOME</button>
+          </div>
+            <div class="builder-grid builder-grid-2">
+              <div class="builder-readout builder-field-span-2">
+                <span>HOME 좌표</span>
+                <div id="builder-home-coords" class="builder-coordinates"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="builder-section builder-section-fill">
+            <div class="section-label">▶ 웨이포인트</div>
+            <div class="builder-actions builder-actions-3">
+              <button id="builder-add-waypoint-button" type="button" class="action-btn">웨이포인트 추가</button>
+              <button id="builder-delete-waypoint-button" type="button" class="action-btn">선택 삭제</button>
+              <button id="builder-clear-waypoints-button" type="button" class="action-btn">전체 삭제</button>
+            </div>
+          <div id="builder-waypoint-list" class="builder-waypoint-list"></div>
+        </div>
+
+        <div class="builder-section">
+          <div class="section-label">▶ 선택 웨이포인트</div>
+          <div id="builder-waypoint-empty" class="builder-empty">웨이포인트를 선택하세요.</div>
+          <div id="builder-waypoint-fields" class="builder-grid builder-grid-2 is-hidden">
+            <div class="builder-readout builder-field-span-2">
+              <span>좌표</span>
+              <div id="builder-waypoint-coords" class="builder-coordinates"></div>
+            </div>
+            <label class="builder-field">
+              <span>고도</span>
+              <input id="builder-waypoint-alt" class="panel-input" type="number" step="0.1" />
+            </label>
+            <label class="builder-field">
+              <span>속도</span>
+              <input id="builder-waypoint-speed" class="panel-input" type="number" min="0.1" step="0.1" />
+            </label>
+            <label class="builder-field">
+              <span>대기 시간</span>
+              <input id="builder-waypoint-hold" class="panel-input" type="number" min="0" step="0.1" />
+            </label>
+          </div>
+        </div>
+
+        <div class="builder-section">
+          <button id="builder-save-button" type="button" class="action-btn btn-purple builder-save-button">비행 계획 저장</button>
+        </div>
+      </div>
+
+      <div id="drone-builder-panel" class="right-tab-panel" aria-label="기체">
+        <div class="builder-section">
+          <div class="section-label">▶ 기체 선택</div>
+          <div class="builder-scenario-toolbar">
+            <select id="custom-drone-select" class="panel-select"></select>
+            <button id="custom-drone-new-button" type="button" class="action-btn">새 기체</button>
+            <button id="custom-drone-delete-button" type="button" class="action-btn builder-scenario-delete-button">삭제</button>
+          </div>
+        </div>
+
+        <div class="builder-section">
+          <div class="section-label">▶ 기체 정보 편집</div>
+          <div class="builder-grid builder-grid-2">
+            <label class="builder-field builder-field-span-2">
+              <span>기체 이름</span>
+              <input id="custom-drone-name" class="panel-input" type="text" placeholder="예: Custom Scout" />
+            </label>
+            <label class="builder-field builder-field-span-2">
+              <span>기체 분류</span>
+              <input id="custom-drone-category" class="panel-input" type="text" placeholder="예: 상용 멀티콥터 / 고정익 / FPV" />
+            </label>
+            <label class="builder-field">
+              <span>최대 수평 속도 (m/s)</span>
+              <input id="custom-drone-max-horizontal-speed" class="panel-input" type="number" min="0.1" step="0.1" />
+            </label>
+            <label class="builder-field">
+              <span>최대 상승 속도 (m/s)</span>
+              <input id="custom-drone-max-ascent-speed" class="panel-input" type="number" min="0.1" step="0.1" />
+            </label>
+            <label class="builder-field">
+              <span>최대 하강 속도 (m/s)</span>
+              <input id="custom-drone-max-descent-speed" class="panel-input" type="number" min="0.1" step="0.1" />
+            </label>
+            <label class="builder-field">
+              <span>최대 운용 고도 (m)</span>
+              <input id="custom-drone-max-service-ceiling" class="panel-input" type="number" min="0.1" step="0.1" />
+            </label>
+            <label class="builder-field">
+              <span>최대 비행 시간 (min)</span>
+              <input id="custom-drone-max-flight-time" class="panel-input" type="number" min="0.1" step="0.1" />
+            </label>
+            <label class="builder-field">
+              <span>기체 중량 (g)</span>
+              <input id="custom-drone-weight" class="panel-input" type="number" min="0.1" step="0.1" />
+            </label>
+            <label class="builder-field">
+              <span>RCS 추정치 (㎡)</span>
+              <input id="custom-drone-rcs" class="panel-input" type="number" min="0" step="0.01" />
+            </label>
+            <label class="builder-field">
+              <span>RF 식별 정보</span>
+              <input id="custom-drone-rf-signature" class="panel-input" type="text" placeholder="예: ELRS / DJI O4 / 자율비행" />
+            </label>
+            <label class="builder-field">
+              <span>RF 대역</span>
+              <input id="custom-drone-rf-band" class="panel-input" type="text" placeholder="예: 2.4GHz / 5.8GHz / LTE" />
+            </label>
+            <label class="builder-field">
+              <span>음향 특성 (Hz)</span>
+              <input id="custom-drone-acoustic-signature" class="panel-input" type="number" min="0" step="0.1" placeholder="예: 240.0" />
+            </label>
+            <label class="builder-field">
+              <span>열 특성</span>
+              <input id="custom-drone-thermal-signature" class="panel-input" type="text" placeholder="예: 저열 / 중열 / 고열" />
+            </label>
+            <label class="builder-field">
+              <span>페이로드 추정 (g)</span>
+              <input id="custom-drone-payload-capacity" class="panel-input" type="number" min="0" step="0.1" placeholder="예: 500" />
+            </label>
+            <label class="builder-field builder-field-span-2">
+              <span>센서 서명 메모</span>
+              <input id="custom-drone-sensor-notes" class="panel-input" type="text" placeholder="예: 저고도 배회형, 음향 강함, 열 특성 뚜렷" />
+            </label>
+          </div>
+          <button id="custom-drone-save-button" type="button" class="action-btn btn-purple builder-save-button">사용자 기체 저장</button>
+          <div id="custom-drone-status" class="builder-empty">기체 정보를 입력해 사용자 정의 드론을 추가하세요.</div>
+        </div>
+      </div>
+
+      <div id="replay-panel" class="right-tab-panel" aria-label="리플레이">
+        <div class="builder-section">
+          <div class="section-label">▶ 저장 로그 열기</div>
+          <div class="builder-scenario-toolbar">
+            <select id="replay-log-select" class="panel-select"></select>
+            <button id="replay-refresh-button" type="button" class="action-btn builder-scenario-delete-button">새로고침</button>
+          </div>
+          <input id="replay-file-input" type="file" accept=".csv,text/csv" hidden />
+          <button id="replay-open-file-button" type="button" class="action-btn">CSV 열기</button>
+          <div id="replay-status" class="builder-empty">저장 로그 목록 불러오는 중...</div>
+        </div>
+
+        <div class="builder-section">
+          <div class="section-label">▶ 리플레이 정보</div>
+          <div id="replay-meta" class="live-summary"></div>
+        </div>
+
+        <div class="builder-section">
+          <div class="section-label">▶ 재생 제어</div>
+          <div class="replay-speed-row">
+            <label class="builder-field">
+              <span>재생 속도</span>
+              <select id="replay-speed-select" class="panel-select">
+                <option value="0.5">0.5x</option>
+                <option value="1" selected>1x</option>
+                <option value="2">2x</option>
+                <option value="4">4x</option>
+              </select>
+            </label>
+          </div>
+          <div class="replay-control-grid">
+            <button id="replay-play-button" type="button" class="action-btn">재생</button>
+            <button id="replay-pause-button" type="button" class="action-btn">일시정지</button>
+            <button id="replay-reset-button" type="button" class="action-btn replay-control-wide">초기화</button>
+          </div>
+          <div class="builder-empty">하단 상태 바에서 리플레이 지점을 선택할 수 있습니다.</div>
+        </div>
+
+        <div class="builder-section replay-preview-section">
+          <div class="section-label">▶ 리플레이 로그</div>
+          <div id="replay-live-log" class="replay-preview-list"></div>
+        </div>
+      </div>
+
+      <div id="flight-panel" class="right-tab-panel" aria-label="비행">
+        <div class="builder-section">
+          <div class="section-label">▶ 비행 상태</div>
+          <div class="flight-status-card">
+            <div class="live-summary-row"><span class="live-summary-key">텔레메트리 연결 상태</span><span id="flight-link-status" class="live-summary-value">대기</span></div>
+            <div class="live-summary-row"><span class="live-summary-key">비행 계획</span><span id="flight-scenario-status" class="live-summary-value">-</span></div>
+            <div class="live-summary-row"><span class="live-summary-key">비행 단계</span><span id="flight-mode-status" class="live-summary-value">대기</span></div>
+            <div class="live-summary-row"><span class="live-summary-key">배터리</span><span id="flight-battery-status" class="live-summary-value">-</span></div>
+          </div>
+        </div>
+
+        <div class="builder-section">
+          <div class="section-label">▶ 비행 요약</div>
+          <div class="flight-status-card">
+            <div class="live-summary-row"><span class="live-summary-key">비행 시간</span><span id="flight-summary-duration" class="live-summary-value">0s</span></div>
+            <div class="live-summary-row"><span class="live-summary-key">이동 거리</span><span id="flight-summary-distance" class="live-summary-value">0.0m</span></div>
+            <div class="live-summary-row"><span class="live-summary-key">평균 고도</span><span id="flight-summary-avg-alt" class="live-summary-value">0.0m</span></div>
+            <div class="live-summary-row"><span class="live-summary-key">평균 속도</span><span id="flight-summary-avg-speed" class="live-summary-value">0.0m/s</span></div>
+          </div>
+        </div>
+
+        <div class="builder-section">
+          <div class="section-label">▶ 임무</div>
+          <label class="slot-subfield">
+            <span>비행 계획</span>
+            <select id="live-scenario-select" class="panel-select"></select>
+          </label>
+          <button id="live-upload-button" type="button" class="action-btn flight-wide-button" disabled>임무 업로드</button>
+        </div>
+
+        <div class="builder-section">
+          <div class="section-label">▶ 비행 명령</div>
+          <div class="flight-command-grid">
+            <button id="live-arm-button" type="button" class="action-btn" disabled>시동 켜기</button>
+            <button id="live-disarm-button" type="button" class="action-btn" disabled>시동 끄기</button>
+            <button id="live-takeoff-button" type="button" class="action-btn" disabled>이륙</button>
+            <button id="live-land-button" type="button" class="action-btn" disabled>착륙</button>
+            <button id="live-rth-button" type="button" class="action-btn" disabled>RTH</button>
+            <button id="live-hold-button" type="button" class="action-btn" disabled>HOLD</button>
+            <button id="live-start-button" type="button" class="action-btn flight-command-wide" disabled>임무 시작</button>
+          </div>
+        </div>
+
+        <div class="flight-log-section">
+          <div class="log-header">
+            <div class="section-label">▶ 비행 로그</div>
+            <div class="log-stream-selector">
+              <button type="button" class="log-stream-button is-active" data-log-stream-id="drone-1-select">기체 1</button>
+              <button type="button" class="log-stream-button" data-log-stream-id="drone-2-select">기체 2</button>
+              <button type="button" class="log-stream-button" data-log-stream-id="drone-3-select">기체 3</button>
+              <button type="button" class="log-stream-button" data-log-stream-id="live-vehicle">연결된 기체</button>
+            </div>
+          </div>
+          <div id="flight-log-status">연결된 기체 로그</div>
+          <div id="flight-log-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="alert-stack" class="alert-stack" aria-live="assertive" aria-atomic="false"></div>
+
+  <script src="./vendor/leaflet/leaflet.js"></script>
+  <script type="module" src="./js/main.js?v=107"></script>
+
+</body>
+
+</html>
